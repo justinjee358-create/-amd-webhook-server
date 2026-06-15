@@ -52,16 +52,17 @@ app.get('/signal', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
+  const price = 4326.33;
   latestSignal = {
     pair: 'XAUUSD',
     phase: 'distribution',
     bias: 'bullish',
-    price: 4344.50,
-    session_high: 4380.00,
-    session_low: 4310.00,
-    entry: '4344.80',
-    sl: '4309.50',
-    tp: '4380.00',
+    price: price,
+    session_high: 4369.26,
+    session_low: 4300.90,
+    entry: null,
+    sl: null,
+    tp: null,
     message: 'Test — AMD distribution detected on Gold!',
     timestamp: new Date().toISOString()
   };
