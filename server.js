@@ -9,12 +9,11 @@ app.use(cors({
 }));
 
 app.options('*', cors());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 let latestSignal = {
-  pair: 'EURUSD',
+  pair: 'XAUUSD',
   phase: 'waiting',
   bias: 'neutral',
   price: null,
@@ -23,7 +22,7 @@ let latestSignal = {
   entry: null,
   sl: null,
   tp: null,
-  message: 'Waiting for TradingView alert...',
+  message: 'Waiting for signal...',
   timestamp: new Date().toISOString()
 };
 
@@ -31,7 +30,7 @@ app.post('/webhook', (req, res) => {
   const data = req.body;
   console.log('Alert received:', JSON.stringify(data));
   latestSignal = {
-    pair: data.pair || 'EURUSD',
+    pair: data.pair || 'XAUUSD',
     phase: data.phase || 'unknown',
     bias: data.bias || 'neutral',
     price: data.price || null,
@@ -54,16 +53,16 @@ app.get('/signal', (req, res) => {
 
 app.get('/test', (req, res) => {
   latestSignal = {
-    pair: 'EURUSD',
-    phase: 'manipulation',
+    pair: 'XAUUSD',
+    phase: 'distribution',
     bias: 'bullish',
-    price: 1.0842,
-    session_high: 1.0861,
-    session_low: 1.0819,
-    entry: '1.0821-1.0828',
-    sl: '1.0812',
-    tp: '1.0861',
-    message: 'Test signal — AMD manipulation detected!',
+    price: 4344.50,
+    session_high: 4380.00,
+    session_low: 4310.00,
+    entry: '4344.80',
+    sl: '4309.50',
+    tp: '4380.00',
+    message: 'Test — AMD distribution detected on Gold!',
     timestamp: new Date().toISOString()
   };
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -72,8 +71,8 @@ app.get('/test', (req, res) => {
 
 app.get('/', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.json({ 
-    status: 'AMD Webhook Server running', 
+  res.json({
+    status: 'AMD Webhook Server running',
     uptime: process.uptime(),
     endpoints: { signal: '/signal', webhook: '/webhook', test: '/test' }
   });
