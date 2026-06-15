@@ -2,7 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.options('*', cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -20,7 +27,6 @@ let latestSignal = {
   timestamp: new Date().toISOString()
 };
 
-// TradingView sends alerts here
 app.post('/webhook', (req, res) => {
   const data = req.body;
   console.log('Alert received:', JSON.stringify(data));
@@ -40,13 +46,12 @@ app.post('/webhook', (req, res) => {
   res.json({ status: 'ok', received: latestSignal });
 });
 
-// Dashboard polls this
 app.get('/signal', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'application/json');
   res.json(latestSignal);
 });
 
-// Test endpoint — manually trigger a signal
 app.get('/test', (req, res) => {
   latestSignal = {
     pair: 'EURUSD',
@@ -61,12 +66,17 @@ app.get('/test', (req, res) => {
     message: 'Test signal — AMD manipulation detected!',
     timestamp: new Date().toISOString()
   };
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.json({ status: 'test signal fired!', signal: latestSignal });
 });
 
-// Health check
 app.get('/', (req, res) => {
-  res.json({ status: 'AMD Webhook Server running', uptime: process.uptime(), signal_endpoint: '/signal', webhook_endpoint: '/webhook', test_endpoint: '/test' });
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.json({ 
+    status: 'AMD Webhook Server running', 
+    uptime: process.uptime(),
+    endpoints: { signal: '/signal', webhook: '/webhook', test: '/test' }
+  });
 });
 
 const PORT = process.env.PORT || 3000;
