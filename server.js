@@ -26,9 +26,16 @@ let latestSignal = {
   timestamp: new Date().toISOString()
 };
 
+let accountInfo = {
+  balance: null,
+  equity: null,
+  profit: null,
+  positions: []
+};
+
 app.post('/webhook', (req, res) => {
   const data = req.body;
-  console.log('Alert received:', JSON.stringify(data));
+  console.log('Signal received:', JSON.stringify(data));
   latestSignal = {
     pair: data.pair || 'XAUUSD',
     phase: data.phase || 'unknown',
@@ -45,19 +52,28 @@ app.post('/webhook', (req, res) => {
   res.json({ status: 'ok', received: latestSignal });
 });
 
+app.post('/account', (req, res) => {
+  const data = req.body;
+  accountInfo = {
+    balance: data.balance || null,
+    equity: data.equity || null,
+    profit: data.profit || null,
+    positions: data.positions || []
+  };
+  res.json({ status: 'ok' });
+});
+
 app.get('/signal', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Content-Type', 'application/json');
-  res.json(latestSignal);
+  res.json({ ...latestSignal, account: accountInfo });
 });
 
 app.get('/test', (req, res) => {
-  const price = 4326.33;
   latestSignal = {
     pair: 'XAUUSD',
     phase: 'distribution',
     bias: 'bullish',
-    price: price,
+    price: 4326.33,
     session_high: 4369.26,
     session_low: 4300.90,
     entry: null,
@@ -75,7 +91,7 @@ app.get('/', (req, res) => {
   res.json({
     status: 'AMD Webhook Server running',
     uptime: process.uptime(),
-    endpoints: { signal: '/signal', webhook: '/webhook', test: '/test' }
+    endpoints: { signal: '/signal', webhook: '/webhook', account: '/account', test: '/test' }
   });
 });
 
